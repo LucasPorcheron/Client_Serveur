@@ -1,3 +1,3 @@
 ﻿using Serveur;
 
-Serv.Main();
+ServerChat.Main();
