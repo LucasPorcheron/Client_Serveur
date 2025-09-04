@@ -9,20 +9,23 @@ namespace Serveur;
 
 public class ServeurChat
 {
-    // Liste qui contient tous les clients connectés au serveur
+    // Liste qui contient tous les clients connectés
     private static List<TcpClient> clients = new List<TcpClient>();
-    
-    // Objet de verrouillage pour protéger l'accès concurrent à "clients"
+
+    // Objet pour gérer la synchronisation quand plusieurs threads accèdent à "clients"
     private static object lockObj = new object();
+
+    // Compteur pour attribuer des identifiants uniques (Client1, Client2, …)
+    private static int clientCounter = 0;
 
     public static void Main()
     {
-        // Création du serveur TCP qui écoute sur l'adresse locale 127.0.0.1 et le port 8001
-        TcpListener listener = new TcpListener(IPAddress.Parse("192.0.0.3"), 8001);
+        // Création d’un serveur TCP qui écoute sur l’IP locale (à adapter selon ta machine)
+        TcpListener listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 8001);
         listener.Start();
-        Console.WriteLine("Chat server started on 192.0.0.3:8001...");
+        Console.WriteLine("Serveur démarré en 127.0.0.1:8001...");
 
-        // Lancement d’un thread parallèle pour permettre au serveur d’envoyer lui-même des messages
+        // Thread séparé pour que le serveur puisse écrire dans le chat
         Task.Run(() =>
         {
             while (true)
@@ -31,87 +34,90 @@ public class ServeurChat
                 string message = Console.ReadLine();
                 if (!string.IsNullOrEmpty(message))
                 {
-                    // Diffuse le message du serveur à tous les clients connectés
-                    Broadcast($"[Server]: {message}", null);
+                    Broadcast($"[Serveur]: {message}", null);
                 }
             }
         });
 
-        // Boucle principale du serveur : attendre et accepter de nouveaux clients
+        // Boucle principale du serveur → attend des connexions de clients
         while (true)
         {
-            // Bloque jusqu'à ce qu’un client se connecte
             TcpClient client = listener.AcceptTcpClient();
 
-            // Ajoute le client à la liste protégée par un lock
+            // Ajout du client à la liste partagée (protégée par un lock)
             lock (lockObj) clients.Add(client);
 
-            Console.WriteLine("Client connected: " + client.Client.RemoteEndPoint);
+            // Génération d’un identifiant unique pour ce client
+            clientCounter++;
+            string clientName = $"Client{clientCounter}";
 
-            // Lance un nouveau thread (Task) pour gérer la communication avec ce client
-            Task.Run(() => HandleClient(client));
+            Console.WriteLine($"{clientName} connecté : {client.Client.RemoteEndPoint}");
+
+            // Envoi d’un message de bienvenue au client avec son identifiant
+            NetworkStream stream = client.GetStream();
+            byte[] welcomeMsg = Encoding.ASCII.GetBytes($"Tu es le {clientName}");
+            stream.Write(welcomeMsg, 0, welcomeMsg.Length);
+
+            // Lancement d’un thread pour gérer ce client en particulier
+            Task.Run(() => HandleClient(client, clientName));
         }
     }
 
-    // Gère la communication avec un client donné
-    private static void HandleClient(TcpClient client)
+    // Gère la communication avec un client spécifique
+    private static void HandleClient(TcpClient client, string clientName)
     {
         try
         {
-            // "using" garantit que le flux réseau sera correctement libéré
             using (NetworkStream stream = client.GetStream())
             {
                 byte[] buffer = new byte[1024];
                 int bytesRead;
 
-                // Boucle de lecture des messages envoyés par le client
+                // Lecture en boucle des messages envoyés par le client
                 while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    // Convertit les octets reçus en string
                     string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
 
-                    // Affiche le message côté serveur (log)
-                    Console.WriteLine(message);
+                    // Log côté serveur
+                    Console.WriteLine($"[{clientName}]: {message}");
 
-                    // Diffuse le message à tous les autres clients connectés
-                    Broadcast(message, client);
+                    // Envoi du message à tous les autres clients
+                    Broadcast($"[{clientName}]: {message}", client);
                 }
             }
         }
         catch
         {
-            // Si une erreur survient (ex. client ferme sa connexion), on log la déconnexion
-            Console.WriteLine("Client disconnected.");
+            Console.WriteLine($"{clientName} déconnecté.");
         }
         finally
         {
-            // Retire le client de la liste et ferme la connexion proprement
+            // Nettoyage : retrait du client de la liste
             lock (lockObj) clients.Remove(client);
             client.Close();
         }
     }
 
-    // Diffuse un message à tous les clients connectés sauf à l’expéditeur (si défini)
+    // Diffuse un message à tous les clients connectés sauf à l’expéditeur
     private static void Broadcast(string message, TcpClient? sender)
     {
-        // Convertit le message en tableau d’octets
         byte[] data = Encoding.ASCII.GetBytes(message);
 
         lock (lockObj)
         {
             foreach (var client in clients)
             {
-                // Ne renvoie pas le message à l’expéditeur
+                // évite de renvoyer au client qui a envoyé
                 if (client != sender)
                 {
                     try
                     {
                         NetworkStream stream = client.GetStream();
-                        stream.Write(data, 0, data.Length); // envoi du message
+                        stream.Write(data, 0, data.Length);
                     }
                     catch
                     {
-                        // On ignore les erreurs si un client est déconnecté
+                        // Si un client est déconnecté, on ignore l’erreur
                     }
                 }
             }
