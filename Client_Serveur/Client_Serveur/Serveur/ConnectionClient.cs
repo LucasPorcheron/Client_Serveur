@@ -4,28 +4,29 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using MongoDB.Driver;   
+using MongoDB.Bson;
 
 namespace Serveur;
 
 public class ServeurChat
 {
-    // Liste qui contient tous les clients connectés
-    private static List<TcpClient> clients = new List<TcpClient>();
-
-    // Objet pour gérer la synchronisation quand plusieurs threads accèdent à "clients"
+        private static List<TcpClient> clients = new List<TcpClient>();
     private static object lockObj = new object();
-
-    // Compteur pour attribuer des identifiants uniques (Client1, Client2, …)
     private static int clientCounter = 0;
+
+    // Connexion à MongoDB Atlas
+    private static MongoClient mongoClient = new MongoClient("mongodb+srv://EstiamUser:EstiamUserPassword@cluster0.q1fcc2e.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
+    private static IMongoDatabase database = mongoClient.GetDatabase("Client_Serveur");
+    private static IMongoCollection<BsonDocument> messagesCollection = database.GetCollection<BsonDocument>("Message");
 
     public static void Main()
     {
-        // Création d’un serveur TCP qui écoute sur l’IP locale (à adapter selon ta machine)
+        // Lancemennt du Serveur
         TcpListener listener = new TcpListener(IPAddress.Parse("127.0.0.1"), 8001);
         listener.Start();
         Console.WriteLine("Serveur démarré en 127.0.0.1:8001...");
 
-        // Thread séparé pour que le serveur puisse écrire dans le chat
         Task.Run(() =>
         {
             while (true)
@@ -39,31 +40,29 @@ public class ServeurChat
             }
         });
 
-        // Boucle principale du serveur → attend des connexions de clients
+        // Boucle infinie pour accepter les connexions des clients
         while (true)
         {
             TcpClient client = listener.AcceptTcpClient();
 
-            // Ajout du client à la liste partagée (protégée par un lock)
             lock (lockObj) clients.Add(client);
 
-            // Génération d’un identifiant unique pour ce client
+            // Génération d’un identifiant unique pour chaque client
             clientCounter++;
             string clientName = $"Client{clientCounter}";
 
             Console.WriteLine($"{clientName} connecté : {client.Client.RemoteEndPoint}");
 
-            // Envoi d’un message de bienvenue au client avec son identifiant
             NetworkStream stream = client.GetStream();
-            byte[] welcomeMsg = Encoding.ASCII.GetBytes($"Tu es le {clientName}");
+            byte[] welcomeMsg = Encoding.ASCII.GetBytes($"Tu es le {clientName}\n");
             stream.Write(welcomeMsg, 0, welcomeMsg.Length);
 
-            // Lancement d’un thread pour gérer ce client en particulier
+            // Lancement d’un thread pour gérer ce client
             Task.Run(() => HandleClient(client, clientName));
         }
     }
 
-    // Gère la communication avec un client spécifique
+    // Gère la communication avec un client donné
     private static void HandleClient(TcpClient client, string clientName)
     {
         try
@@ -73,15 +72,31 @@ public class ServeurChat
                 byte[] buffer = new byte[1024];
                 int bytesRead;
 
-                // Lecture en boucle des messages envoyés par le client
+                // Boucle de réception des messages du client
                 while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
-                    string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
+                    string message = Encoding.ASCII.GetString(buffer, 0, bytesRead).Trim();
 
-                    // Log côté serveur
+                    // Vérifie si le client a demandé l’historique
+                    if (message == "/historique")
+                    {
+                        SendHistory(stream); 
+                        continue;
+                    }
+
+                    // Affiche côté serveur
                     Console.WriteLine($"[{clientName}]: {message}");
 
-                    // Envoi du message à tous les autres clients
+                    // Sauvegarde du message dans MongoDB
+                    var doc = new BsonDocument
+                    {
+                        { "user", clientName },
+                        { "content", message },
+                        { "sent_at", DateTime.UtcNow }
+                    };
+                    messagesCollection.InsertOne(doc);
+
+                    // Diffusion du message à tous les autres clients
                     Broadcast($"[{clientName}]: {message}", client);
                 }
             }
@@ -92,13 +107,13 @@ public class ServeurChat
         }
         finally
         {
-            // Nettoyage : retrait du client de la liste
+            // Retire le client de la liste quand il se déconnecte
             lock (lockObj) clients.Remove(client);
             client.Close();
         }
     }
 
-    // Diffuse un message à tous les clients connectés sauf à l’expéditeur
+    // Diffuse un message à tous les clients sauf l’expéditeur
     private static void Broadcast(string message, TcpClient? sender)
     {
         byte[] data = Encoding.ASCII.GetBytes(message);
@@ -107,8 +122,7 @@ public class ServeurChat
         {
             foreach (var client in clients)
             {
-                // évite de renvoyer au client qui a envoyé
-                if (client != sender)
+                if (client != sender) 
                 {
                     try
                     {
@@ -117,10 +131,28 @@ public class ServeurChat
                     }
                     catch
                     {
-                        // Si un client est déconnecté, on ignore l’erreur
                     }
                 }
             }
         }
     }
+
+    // Envoie uniquement les 20 derniers messages 
+    private static void SendHistory(NetworkStream stream)
+    {
+        // Récupère les 20 derniers messages, triés par date 
+        var history = messagesCollection.Find(new BsonDocument())
+                                        .Sort("{sent_at: -1}") 
+                                        .Limit(20)
+                                        .Sort("{sent_at: 1}") 
+                                        .ToList();
+
+        foreach (var msg in history)
+        {
+            string line = $"[{msg["sent_at"]}] {msg["user"]}: {msg["content"]}\n";
+            byte[] data = Encoding.ASCII.GetBytes(line);
+            stream.Write(data, 0, data.Length);
+        }
+    }
+
 }

@@ -102,3 +102,9 @@
 /Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/bin/Debug/net9.0/zh-Hant/StreamJsonRpc.resources.dll
 /Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/obj/Debug/net9.0/Client_Serveur.csproj.AssemblyReference.cache
 /Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/obj/Debug/net9.0/Client_S.27DEC0F9.Up2Date
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/bin/Debug/net9.0/DnsClient.dll
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/bin/Debug/net9.0/MongoDB.Bson.dll
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/bin/Debug/net9.0/MongoDB.Driver.dll
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/bin/Debug/net9.0/SharpCompress.dll
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/bin/Debug/net9.0/Snappier.dll
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client_Serveur/Client_Serveur/bin/Debug/net9.0/ZstdSharp.dll
