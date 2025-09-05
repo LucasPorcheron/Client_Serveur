@@ -1,0 +1,14 @@
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/bin/Debug/net9.0/Client
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/bin/Debug/net9.0/Client.deps.json
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/bin/Debug/net9.0/Client.runtimeconfig.json
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/bin/Debug/net9.0/Client.dll
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/bin/Debug/net9.0/Client.pdb
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/Client.GeneratedMSBuildEditorConfig.editorconfig
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/Client.AssemblyInfoInputs.cache
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/Client.AssemblyInfo.cs
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/Client.csproj.CoreCompileInputs.cache
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/Client.dll
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/refint/Client.dll
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/Client.pdb
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/Client.genruntimeconfig.cache
+/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/Debug/net9.0/ref/Client.dll
