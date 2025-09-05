@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/Client.csproj",
+      "projectUniqueName": "/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client/Client/Client.csproj",
       "projectName": "Client",
-      "projectPath": "/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/Client.csproj",
+      "projectPath": "/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client/Client/Client.csproj",
       "packagesPath": "/Users/lucasporcheron/.nuget/packages/",
-      "outputPath": "/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client/Client/obj/",
+      "outputPath": "/Users/lucasporcheron/Documents/ESTIAM/E3-DAD-ESTIAM/C#-.NET/Client_Serveur/Client/Client/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/Users/lucasporcheron/.nuget/NuGet/NuGet.Config"
