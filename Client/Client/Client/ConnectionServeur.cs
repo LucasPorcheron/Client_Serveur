@@ -27,8 +27,8 @@ public class ClientChat
                     while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         string message = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                        Console.WriteLine("\n" + message);
-                        Console.Write("> ");
+                        Console.Write("\n" + message);
+                        //Console.Write("> ");
                     }
                 }
                 catch
